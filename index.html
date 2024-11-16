@@ -5,47 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Happy Anniversary</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
-
+      /* Reset default body margin and padding */
       body {
-        font-family: "JetBrains Mono", monospace;
         margin: 0;
         padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         min-height: 100vh;
-        background-color: #e3f2fd;
-        color: #0d47a1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0b1522; /* Dark background for contrast */
+        position: relative; /* To position heart in the background */
+        font-family: "JetBrains Mono", monospace; /* Using JetBrains Mono font */
+        color: #fce4ec;
         text-align: center;
-        overflow: hidden;
       }
-      .container {
-        width: 90%;
-        max-width: 500px;
-        position: relative;
+
+      /* Heart shape animation */
+      .heart {
+        height: 70px;
+        width: 70px;
+        background: #f20044; /* Red color */
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg); /* Center the heart and rotate */
+        animation: heartbeat 1.5s infinite; /* Heartbeat effect */
+        box-shadow: 0 0 20px rgba(242, 0, 68, 0.7); /* Glowing effect */
+        cursor: pointer;
       }
+
+      /* Before pseudo-element to create the top-left round part of the heart */
+      .heart:before {
+        content: "";
+        position: absolute;
+        height: 70px;
+        width: 70px;
+        background: #f20044; /* Same red as the main heart */
+        top: -39px;
+        border-radius: 50%; /* Rounded shape */
+        left: 0;
+      }
+
+      /* After pseudo-element to create the top-right round part of the heart */
+      .heart:after {
+        content: "";
+        position: absolute;
+        height: 70px;
+        width: 70px;
+        background: #f20044; /* Same red as the main heart */
+        border-radius: 50%; /* Rounded shape */
+        left: 39px; /* Positioned to the right */
+      }
+
+      /* Heartbeat animation to simulate a pulse effect */
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: rotate(-45deg) scale(1); /* Original size */
+        }
+        50% {
+          transform: rotate(-45deg) scale(1.2); /* Slightly larger for the pulse effect */
+        }
+      }
+
+      /* Style for the messages */
       .message,
       .question,
-      #endMessage {
+      #endMessage,
+      #clickText {
         font-size: 24px;
         margin: 20px 0;
-        white-space: nowrap;
-        overflow: hidden;
-        border-right: 2px solid #0d47a1;
-        animation: typing 2s steps(30, end), fadeInOut 2.5s ease;
+        animation: fadeInOut 2.5s ease;
       }
+
       .hidden {
         display: none;
       }
-      @keyframes typing {
-        0% {
-          width: 0;
-        }
-        100% {
-          width: 100%;
-        }
-      }
+
       @keyframes fadeInOut {
         0% {
           opacity: 0;
@@ -60,13 +96,14 @@
           opacity: 0;
         }
       }
+
       .options {
         display: flex;
-        justify-content: center;
+        justify-content: space-between; /* Buttons next to each other */
         gap: 20px;
         margin-top: 20px;
-        position: relative;
       }
+
       .options button {
         padding: 10px 20px;
         font-size: 16px;
@@ -75,34 +112,43 @@
         cursor: pointer;
         transition: transform 0.3s ease, background-color 0.3s ease;
       }
+
       .yes {
-        background-color: #64b5f6;
+        background-color: #81c784;
         color: white;
       }
+
       .no {
-        background-color: #2196f3;
+        background-color: #e57373;
         color: white;
-        position: absolute;
       }
-      .yes:hover {
+
+      .yes.clicked {
         transform: scale(1.1);
       }
-      .no.small {
-        font-size: 10px;
-        padding: 5px 10px;
-        transform: scale(0.8);
+
+      .no.clicked {
+        transform: scale(1.1);
       }
+
       .message-below {
         margin-top: 10px;
-        color: #1565c0;
+        color: #d32f2f;
         font-size: 16px;
         display: none;
       }
     </style>
   </head>
   <body>
+    <!-- The heart element -->
+    <div class="heart" id="heart"></div>
+
     <div class="container">
-      <div class="message" id="message1">
+      <!-- Initial text asking to click the heart -->
+      <div class="message" id="clickText">Click my heart 💖</div>
+
+      <!-- Happy Anniversary message and other content -->
+      <div class="message hidden" id="message1">
         Happy Anniversary naka, my future wife!
       </div>
       <div class="message hidden" id="message2">
@@ -113,9 +159,7 @@
         <span>Will you grow up with me?</span>
         <div class="options">
           <button class="yes" onclick="nextQuestion(2)">Yes</button>
-          <button class="no" id="noButton1" onclick="moveButton(this)">
-            No
-          </button>
+          <button class="no" onclick="makeNoSmaller(1)">No</button>
         </div>
         <div class="message-below" id="messageBelow1">
           There is no 'No' in this. 💖
@@ -126,9 +170,7 @@
         <span>Do you love me?</span>
         <div class="options">
           <button class="yes" onclick="endMessage()">Yes</button>
-          <button class="no" id="noButton2" onclick="moveButton(this)">
-            No
-          </button>
+          <button class="no" onclick="makeNoSmaller(2)">No</button>
         </div>
         <div class="message-below" id="messageBelow2">
           There is no 'No' in this. 💖
@@ -143,31 +185,49 @@
     <script>
       // Track "No" button clicks and dynamically adjust "Yes" button size
       let noClickCount = {};
+      let yesButtonSize = {
+        fontSize: 16, // Initial font size in px
+        padding: 10, // Initial padding in px
+      };
 
-      // Function to move the "No" button randomly when clicked
-      function moveButton(button) {
-        const container = button.parentElement.parentElement; // The container holding the question
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
+      // Function to handle the click on the heart
+      document.getElementById("heart").addEventListener("click", function () {
+        document.getElementById("clickText").classList.add("hidden");
+        showMessageSequence();
+      });
 
-        // Generate random positions within the container
-        const randomX = Math.random() * (containerWidth - button.offsetWidth);
-        const randomY = Math.random() * (containerHeight - button.offsetHeight);
+      // Function to move the "No" button randomly
+      function makeNoSmaller(questionNumber) {
+        const noButton = document.querySelector(
+          `#question${questionNumber} .no`
+        );
+        const yesButton = document.querySelector(
+          `#question${questionNumber} .yes`
+        );
+        const messageBelow = document.getElementById(
+          `messageBelow${questionNumber}`
+        );
 
-        button.style.left = `${randomX}px`;
-        button.style.top = `${randomY}px`;
+        // Increment the count for this question
+        noClickCount[questionNumber] = (noClickCount[questionNumber] || 0) + 1;
 
-        // Reduce button size gradually with each click
-        noClickCount[button.id] = (noClickCount[button.id] || 0) + 1;
-        button.style.fontSize = `${Math.max(
-          10,
-          16 - noClickCount[button.id] * 2
-        )}px`;
-        button.style.padding = `${Math.max(5, 10 - noClickCount[button.id])}px`;
+        // Adjust button sizes
+        noButton.classList.add("clicked");
 
-        // Remove button after 6 clicks
-        if (noClickCount[button.id] > 5) {
-          button.style.display = "none";
+        // Make "Yes" button bigger with every click on "No"
+        yesButtonSize.fontSize += 2; // Increase font size by 2px
+        yesButtonSize.padding += 1; // Increase padding by 1px
+        yesButton.style.fontSize = `${yesButtonSize.fontSize}px`;
+        yesButton.style.padding = `${yesButtonSize.padding}px ${
+          yesButtonSize.padding * 2
+        }px`;
+
+        // Display the playful message
+        messageBelow.style.display = "block";
+
+        // Remove "No" button after 6 clicks
+        if (noClickCount[questionNumber] > 5) {
+          noButton.style.display = "none";
         }
       }
 
@@ -192,7 +252,7 @@
         document
           .getElementById(`question${questionNumber - 1}`)
           .classList.add("hidden");
-        document
+        documen
           .getElementById(`question${questionNumber}`)
           .classList.remove("hidden");
       }
@@ -201,9 +261,6 @@
         document.getElementById("question2").classList.add("hidden");
         document.getElementById("endMessage").classList.remove("hidden");
       }
-
-      // Start the sequence
-      showMessageSequence();
     </script>
   </body>
 </html>
