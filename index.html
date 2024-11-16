@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Happy Anniversary Surprise</title>
+    <title>My Emmy</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
         margin: 0;
@@ -13,11 +17,7 @@
         align-items: center;
         background-color: #fce4ec;
         overflow: hidden;
-      }
-
-      .heart-container {
-        position: relative; /* To position "Touch me" text above the heart */
-        text-align: center; /* Center align both heart and "Touch me" text */
+        font-family: "JetBrains Mono", monospace; /* Apply JetBrains Mono font */
       }
 
       .heart {
@@ -38,18 +38,21 @@
 
       .message {
         position: absolute;
-        top: -70px; /* Adjust this value to position the text above the heart */
-        left: 50%;
-        transform: translateX(
-          -50%
-        ); /* Center the "Touch me" text horizontally */
-        font-size: 2rem; /* Smaller font size to fit on one line */
+        opacity: 1;
+        font-size: 2rem;
+        text-align: center;
         color: #d81b60;
-        opacity: 1; /* Initially visible */
-        transition: opacity 1.5s; /* Slower fade transition */
-        white-space: nowrap; /* Ensure the text stays on a single line */
+        transition: opacity 1.5s;
       }
-
+      .messagebefore {
+        position: absolute;
+        top: 300px;
+        opacity: 1;
+        font-size: 3.5rem;
+        text-align: center;
+        color: #d81b60;
+        transition: opacity 1.5s;
+      }
       .zoom {
         animation: zoom 1.5s forwards; /* Slower zoom effect */
       }
@@ -78,11 +81,8 @@
     </style>
   </head>
   <body>
-    <div class="heart-container">
-      <div id="message" class="message">Touch me</div>
-      <div id="heart" class="heart">❤️</div>
-    </div>
-
+    <div id="heart" class="heart">❤️</div>
+    <div id="message" class="messagebefore">Touch me</div>
     <div id="anniversary" class="message" style="opacity: 0">
       Happy Anniversary! ❤️
     </div>
