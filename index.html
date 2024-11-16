@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Anniversary</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #fce4ec;
+        color: #880e4f;
+        text-align: center;
+        overflow: hidden;
+      }
+      .container {
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+      }
+      .message,
+      .question,
+      #endMessage {
+        font-size: 24px;
+        margin: 20px 0;
+        animation: fadeInOut 2.5s ease;
+      }
+      .hidden {
+        display: none;
+      }
+      @keyframes fadeInOut {
+        0% {
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      .options {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+        position: relative;
+      }
+      .options button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+      }
+      .yes {
+        background-color: #81c784;
+        color: white;
+      }
+      .no {
+        background-color: #e57373;
+        color: white;
+        position: absolute;
+      }
+      .yes:hover {
+        transform: scale(1.1);
+      }
+      .no.small {
+        font-size: 10px;
+        padding: 5px 10px;
+        transform: scale(0.8);
+      }
+      .message-below {
+        margin-top: 10px;
+        color: #d32f2f;
+        font-size: 16px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="message" id="message1">
+        Happy Anniversary naka, my future wife!
+      </div>
+      <div class="message hidden" id="message2">
+        I know I can be weird sometimes, so I made this for you!
+      </div>
+
+      <div class="question hidden" id="question1">
+        <span>Will you grow up with me?</span>
+        <div class="options">
+          <button
+            class="yes"
+            onclick="nextQuestion(2)"
+            style="font-size: 16px; padding: 10px 20px"
+          >
+            Yes
+          </button>
+          <button class="no" id="noButton1" onmouseover="moveButton(this)">
+            No
+          </button>
+        </div>
+        <div class="message-below" id="messageBelow1">
+          There is no 'No' in this. 💖
+        </div>
+      </div>
+
+      <div class="question hidden" id="question2">
+        <span>Do you love me?</span>
+        <div class="options">
+          <button
+            class="yes"
+            onclick="endMessage()"
+            style="font-size: 16px; padding: 10px 20px"
+          >
+            Yes
+          </button>
+          <button class="no" id="noButton2" onmouseover="moveButton(this)">
+            No
+          </button>
+        </div>
+        <div class="message-below" id="messageBelow2">
+          There is no 'No' in this. 💖
+        </div>
+      </div>
+
+      <div id="endMessage" class="hidden">
+        Thank you for saying yes! I love you so much! 💖
+      </div>
+    </div>
+
+    <script>
+      // Track "No" button clicks and dynamically adjust "Yes" button size
+      let noClickCount = {};
+      let yesButtonSize = {
+        fontSize: 16, // Initial font size in px
+        padding: 10, // Initial padding in px
+      };
+
+      // Function to move the "No" button randomly
+      function moveButton(button) {
+        const container = button.parentElement.parentElement; // The container holding the question
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+
+        // Generate random positions within the container
+        const randomX = Math.random() * (containerWidth - button.offsetWidth);
+        const randomY = Math.random() * (containerHeight - button.offsetHeight);
+
+        button.style.left = `${randomX}px`;
+        button.style.top = `${randomY}px`;
+      }
+
+      function makeNoSmaller(questionNumber) {
+        const noButton = document.querySelector(
+          `#question${questionNumber} .no`
+        );
+        const yesButton = document.querySelector(
+          `#question${questionNumber} .yes`
+        );
+        const messageBelow = document.getElementById(
+          `messageBelow${questionNumber}`
+        );
+
+        // Increment the count for this question
+        noClickCount[questionNumber] = (noClickCount[questionNumber] || 0) + 1;
+
+        // Adjust button sizes
+        noButton.classList.add("small");
+
+        // Make "Yes" button bigger with every click on "No"
+        yesButtonSize.fontSize += 2; // Increase font size by 2px
+        yesButtonSize.padding += 1; // Increase padding by 1px
+        yesButton.style.fontSize = `${yesButtonSize.fontSize}px`;
+        yesButton.style.padding = `${yesButtonSize.padding}px ${
+          yesButtonSize.padding * 2
+        }px`;
+
+        // Display the playful message
+        messageBelow.style.display = "block";
+
+        // Remove "No" button after 6 clicks
+        if (noClickCount[questionNumber] > 5) {
+          noButton.style.display = "none";
+        }
+      }
+
+      // Sequentially display messages and questions
+      function showMessageSequence() {
+        const message1 = document.getElementById("message1");
+        const message2 = document.getElementById("message2");
+        const question1 = document.getElementById("question1");
+
+        setTimeout(() => {
+          message1.classList.add("hidden");
+          message2.classList.remove("hidden");
+        }, 2500); // Wait for first message to fade out
+
+        setTimeout(() => {
+          message2.classList.add("hidden");
+          question1.classList.remove("hidden");
+        }, 5000); // Wait for second message to fade out
+      }
+
+      function nextQuestion(questionNumber) {
+        document
+          .getElementById(`question${questionNumber - 1}`)
+          .classList.add("hidden");
+        document
+          .getElementById(`question${questionNumber}`)
+          .classList.remove("hidden");
+      }
+
+      function endMessage() {
+        document.getElementById("question2").classList.add("hidden");
+        document.getElementById("endMessage").classList.remove("hidden");
+      }
+
+      // Start the sequence
+      showMessageSequence();
+    </script>
+  </body>
+</html>
