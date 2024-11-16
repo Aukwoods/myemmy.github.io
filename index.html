@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Happy Anniversary</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
+
       body {
-        font-family: Arial, sans-serif;
+        font-family: "JetBrains Mono", monospace;
         margin: 0;
         padding: 0;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background-color: #fce4ec;
-        color: #880e4f;
+        background-color: #e3f2fd;
+        color: #0d47a1;
         text-align: center;
         overflow: hidden;
       }
@@ -28,10 +30,21 @@
       #endMessage {
         font-size: 24px;
         margin: 20px 0;
-        animation: fadeInOut 2.5s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        border-right: 2px solid #0d47a1;
+        animation: typing 2s steps(30, end), fadeInOut 2.5s ease;
       }
       .hidden {
         display: none;
+      }
+      @keyframes typing {
+        0% {
+          width: 0;
+        }
+        100% {
+          width: 100%;
+        }
       }
       @keyframes fadeInOut {
         0% {
@@ -63,11 +76,11 @@
         transition: transform 0.3s ease, background-color 0.3s ease;
       }
       .yes {
-        background-color: #81c784;
+        background-color: #64b5f6;
         color: white;
       }
       .no {
-        background-color: #e57373;
+        background-color: #2196f3;
         color: white;
         position: absolute;
       }
@@ -81,7 +94,7 @@
       }
       .message-below {
         margin-top: 10px;
-        color: #d32f2f;
+        color: #1565c0;
         font-size: 16px;
         display: none;
       }
@@ -99,14 +112,8 @@
       <div class="question hidden" id="question1">
         <span>Will you grow up with me?</span>
         <div class="options">
-          <button
-            class="yes"
-            onclick="nextQuestion(2)"
-            style="font-size: 16px; padding: 10px 20px"
-          >
-            Yes
-          </button>
-          <button class="no" id="noButton1" onmouseover="moveButton(this)">
+          <button class="yes" onclick="nextQuestion(2)">Yes</button>
+          <button class="no" id="noButton1" onclick="moveButton(this)">
             No
           </button>
         </div>
@@ -118,14 +125,8 @@
       <div class="question hidden" id="question2">
         <span>Do you love me?</span>
         <div class="options">
-          <button
-            class="yes"
-            onclick="endMessage()"
-            style="font-size: 16px; padding: 10px 20px"
-          >
-            Yes
-          </button>
-          <button class="no" id="noButton2" onmouseover="moveButton(this)">
+          <button class="yes" onclick="endMessage()">Yes</button>
+          <button class="no" id="noButton2" onclick="moveButton(this)">
             No
           </button>
         </div>
@@ -142,12 +143,8 @@
     <script>
       // Track "No" button clicks and dynamically adjust "Yes" button size
       let noClickCount = {};
-      let yesButtonSize = {
-        fontSize: 16, // Initial font size in px
-        padding: 10, // Initial padding in px
-      };
 
-      // Function to move the "No" button randomly
+      // Function to move the "No" button randomly when clicked
       function moveButton(button) {
         const container = button.parentElement.parentElement; // The container holding the question
         const containerWidth = container.offsetWidth;
@@ -159,39 +156,18 @@
 
         button.style.left = `${randomX}px`;
         button.style.top = `${randomY}px`;
-      }
 
-      function makeNoSmaller(questionNumber) {
-        const noButton = document.querySelector(
-          `#question${questionNumber} .no`
-        );
-        const yesButton = document.querySelector(
-          `#question${questionNumber} .yes`
-        );
-        const messageBelow = document.getElementById(
-          `messageBelow${questionNumber}`
-        );
+        // Reduce button size gradually with each click
+        noClickCount[button.id] = (noClickCount[button.id] || 0) + 1;
+        button.style.fontSize = `${Math.max(
+          10,
+          16 - noClickCount[button.id] * 2
+        )}px`;
+        button.style.padding = `${Math.max(5, 10 - noClickCount[button.id])}px`;
 
-        // Increment the count for this question
-        noClickCount[questionNumber] = (noClickCount[questionNumber] || 0) + 1;
-
-        // Adjust button sizes
-        noButton.classList.add("small");
-
-        // Make "Yes" button bigger with every click on "No"
-        yesButtonSize.fontSize += 2; // Increase font size by 2px
-        yesButtonSize.padding += 1; // Increase padding by 1px
-        yesButton.style.fontSize = `${yesButtonSize.fontSize}px`;
-        yesButton.style.padding = `${yesButtonSize.padding}px ${
-          yesButtonSize.padding * 2
-        }px`;
-
-        // Display the playful message
-        messageBelow.style.display = "block";
-
-        // Remove "No" button after 6 clicks
-        if (noClickCount[questionNumber] > 5) {
-          noButton.style.display = "none";
+        // Remove button after 6 clicks
+        if (noClickCount[button.id] > 5) {
+          button.style.display = "none";
         }
       }
 
